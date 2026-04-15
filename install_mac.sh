@@ -26,13 +26,30 @@ if [ ! -f "setup.py" ]; then
 fi
 
 # ── 1. System dependencies ─────────────────────────────────────────────────
-echo "[1/4] Installing system packages (portaudio, ffmpeg)..."
-brew install portaudio ffmpeg
+echo "[1/4] Installing system packages (python3, portaudio, ffmpeg)..."
+brew install python@3.11 portaudio ffmpeg
+
+# ── Python version check ───────────────────────────────────────────────────
+# Use Homebrew's Python explicitly to avoid macOS system stub (Python 2 / Xcode dialog)
+PYTHON_BIN="$(brew --prefix python@3.11)/bin/python3"
+if [ ! -x "$PYTHON_BIN" ]; then
+    # Fallback: any python3 that is >= 3.9
+    PYTHON_BIN="python3"
+fi
+
+PY_OK=$("$PYTHON_BIN" -c "import sys; print('ok' if sys.version_info >= (3,9) else 'old')" 2>/dev/null || echo "missing")
+if [ "$PY_OK" != "ok" ]; then
+    echo ""
+    echo "ERROR: Python 3.9+ required."
+    echo "Run: brew install python@3.11"
+    exit 1
+fi
+echo "  Using $("$PYTHON_BIN" --version)"
 
 # ── 2. Python virtual environment ─────────────────────────────────────────
 echo ""
 echo "[2/4] Creating Python virtual environment..."
-python3 -m venv .venv
+"$PYTHON_BIN" -m venv .venv
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
@@ -50,7 +67,7 @@ pip install -e . -q
 echo ""
 echo "=== Installation complete ==="
 echo ""
-echo "IMPORTANT — grant Accessibility permission before first run:"
+echo "  *** IMPORTANT — one-time permission required: ***"
 echo "  System Settings → Privacy & Security → Accessibility"
 echo "  Click [+] and add your terminal app (Terminal, iTerm2, Warp, etc.)"
 echo "  This covers both the global hotkey AND auto-paste (Cmd+V)."

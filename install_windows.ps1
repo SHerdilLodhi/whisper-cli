@@ -3,9 +3,10 @@
 # Run from inside the repo:    .\install_windows.ps1
 # Or as a one-liner bootstrap (PowerShell):
 #   irm https://raw.githubusercontent.com/SHerdilLodhi/whisper-cli/main/install_windows.ps1 | iex
-#
-# If blocked by execution policy, first run:
-#   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+
+# Allow scripts in this process — required so .venv\Scripts\Activate.ps1 can run.
+# -Scope Process means this only applies to this session; system policy is untouched.
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 $ErrorActionPreference = "Stop"
 
@@ -20,6 +21,15 @@ if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
     Write-Host "Python not found." -ForegroundColor Red
     Write-Host "Download Python 3.9+ from https://python.org"
     Write-Host "Check 'Add Python to PATH' during install, then re-run this script."
+    exit 1
+}
+
+# Verify Python >= 3.9
+$pyCheck = python -c "import sys; print('ok' if sys.version_info >= (3,9) else 'old')" 2>&1
+if ($pyCheck -ne "ok") {
+    $pyVersion = python --version 2>&1
+    Write-Host "Python 3.9+ required (found $pyVersion)." -ForegroundColor Red
+    Write-Host "Download Python 3.9+ from https://python.org"
     exit 1
 }
 $pyVersion = python --version 2>&1
@@ -46,8 +56,10 @@ if (Get-Command ffmpeg -ErrorAction SilentlyContinue) {
     Write-Host "  Installing ffmpeg via winget..."
     try {
         winget install --id Gyan.FFmpeg --silent --accept-source-agreements --accept-package-agreements
+        # Refresh PATH in the current session so ffmpeg is available immediately
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
+                    [System.Environment]::GetEnvironmentVariable("Path","User")
         Write-Host "  ffmpeg installed."
-        Write-Host "  NOTE: you may need to restart this terminal for ffmpeg to be on PATH."
     } catch {
         Write-Host "  winget install failed." -ForegroundColor Yellow
         Write-Host "  Download ffmpeg from https://ffmpeg.org/download.html"

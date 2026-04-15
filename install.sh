@@ -24,12 +24,20 @@ echo "[1/4] Installing system packages..."
 sudo apt-get update -qq
 sudo apt-get install -y \
     xdotool \
+    ydotool \
+    wl-clipboard \
     portaudio19-dev \
     python3-dev \
     ffmpeg \
     python3-pip \
     python3-venv \
     git
+
+# Add user to 'input' group — required for evdev keyboard hotkey.
+# (xdotool/ydotool also benefit from this for uinput access)
+echo ""
+echo "  Adding you to the 'input' group (required for the keyboard hotkey)..."
+sudo usermod -aG input "$USER"
 
 # ── 2. Python virtual environment ─────────────────────────────────────────
 echo ""
@@ -60,3 +68,7 @@ else
 fi
 echo ""
 echo "On first run, Whisper downloads the 'base' model (~142 MB)."
+echo ""
+echo "  *** IMPORTANT: You must log out and log back in before first use. ***"
+echo "  The 'input' group change (needed for the keyboard hotkey) only takes"
+echo "  effect after a fresh login."
