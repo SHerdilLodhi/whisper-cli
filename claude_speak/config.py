@@ -1,13 +1,18 @@
 """
 Configuration for claude_speak.
-Loaded from ~/.config/claude_speak/config.json, with sane defaults.
+Loaded from the OS-appropriate config directory, with sane defaults.
+
+  Linux:   ~/.config/claude_speak/config.json
+  macOS:   ~/Library/Application Support/claude_speak/config.json
+  Windows: %APPDATA%\\claude_speak\\config.json
 """
 import os
 import json
 from dataclasses import dataclass, field, asdict
 from typing import Optional
+from .platform_utils import get_config_dir
 
-CONFIG_PATH = os.path.expanduser("~/.config/claude_speak/config.json")
+CONFIG_PATH = os.path.join(get_config_dir(), "config.json")
 
 @dataclass
 class Config:

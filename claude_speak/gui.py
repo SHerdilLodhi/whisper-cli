@@ -11,6 +11,11 @@ for _p in ["/usr/lib/python3/dist-packages", "/usr/lib/python3.12/dist-packages"
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+if sys.platform != "linux":
+    print("[gui] The GUI requires GTK4 + Adwaita, which are only available on Linux.")
+    print("[gui] Use the CLI instead:  claude_speak")
+    sys.exit(1)
+
 import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")

@@ -1,6 +1,15 @@
-openai-whisper>=20231117
+# Core — all platforms
+faster-whisper>=0.9.0
 sounddevice>=0.4.6
 numpy>=1.24.0
 scipy>=1.11.0
-pynput>=1.7.6
-evdev>=1.6.0
+
+# Linux: keyboard input via /dev/input (evdev)
+evdev>=1.6.0; sys_platform == "linux"
+
+# macOS / Windows: global hotkey listener + clipboard injection
+pynput>=1.7.6; sys_platform != "linux"
+pyperclip>=1.8.2; sys_platform != "linux"
+
+# Windows: richer desktop notifications (optional — PowerShell fallback used if absent)
+plyer>=2.1.0; sys_platform == "win32"

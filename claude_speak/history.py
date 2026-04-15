@@ -2,12 +2,17 @@
 Transcription history logger for claude_speak.
 
 Appends a JSON line per transcription to a JSONL history file.
+
+  Linux:   ~/.local/share/claude_speak/history.jsonl
+  macOS:   ~/Library/Application Support/claude_speak/history.jsonl
+  Windows: %APPDATA%\\claude_speak\\history.jsonl
 """
 import os
 import json
 import time
+from .platform_utils import get_data_dir
 
-HISTORY_PATH = os.path.expanduser("~/.local/share/claude_speak/history.jsonl")
+HISTORY_PATH = os.path.join(get_data_dir(), "history.jsonl")
 
 
 def log(text: str, duration: float, transcribe_time: float) -> None:
